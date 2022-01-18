@@ -2,4 +2,16 @@ services:
   iut_service:
     container_name: iut_service
     image: node:lts
-    
+    env_file: ./service/api/.env
+    working_dir: /usr/src/app
+    volumes:
+      - ./service/api:/usr/src/app
+    ports:
+      - 3333:3000
+    command: npm start
+    networks:
+      - iut
+
+networks:
+  iut:
+    driver: bridge

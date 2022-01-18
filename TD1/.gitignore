@@ -1,0 +1,2 @@
+service/api/*.env
+service/api/node_modules
