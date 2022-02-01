@@ -86,36 +86,43 @@ router.route('/:id')
   })
   // GET ONE COMMANDE
   .get(function (req, res, next) {
-    db.query('SELECT * FROM commande WHERE id=?', [req.params.id], (err, results) => {
-      if (err)
-        res.status(500).json({
-          type: "error",
-          error: 500,
-          message: "une erreur est survenue :" + err.message
-        })
-      else {
-        if (results.length === 0) {
-          res.status(404).json({
+    if (req.query.token || req.headers.x_lbs_token) {
+      db.query('SELECT * FROM commande WHERE id = ? AND token = ?', [req.params.id, req.query.token || req.headers.x_lbs_token], (err, results) => {
+        if (err) {
+          res.status(500).json({
             type: "error",
-            error: 404,
-            message: "ressource non disponible : /commandes/" + req.params.id
+            error: 500,
+            message: "une erreur est survenue : " + err.message
           })
         } else {
-          if (req.query.embed === 'items')
-            results.forEach((elem) => {
-              elem.links = {
-                self: {
-                  href: "/commandes/" + elem.id
-                },
-                items: {
-                  href: "/commandes/" + elem.id + "/items"
-                }
-              }
+          if (results.length === 0) {
+            res.status(404).json({
+              type: "error",
+              error: 404,
+              message: "ressource non disponible : /commandes/" + req.params.id
             })
-          res.json(results)
+          } else {
+            if (req.query.embed === 'items')
+              results.forEach((elem) => {
+                elem.links = {
+                  self: {
+                    href: "/commandes/" + elem.id
+                  },
+                  items: {
+                    href: "/commandes/" + elem.id + "/items"
+                  }
+                }
+              })
+            res.json(results)
+          }
         }
-      }
-    })
+      })
+    } else
+      res.status(403).json({
+        type: "error",
+        error: 403,
+        message: "vous n'êtes pas authorisé à accéder à cette commande"
+      })
   })
 
 router.route('/:id/items')
