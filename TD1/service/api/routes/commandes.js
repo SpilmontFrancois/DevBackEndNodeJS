@@ -15,25 +15,43 @@ router.route('/')
     const livraison = req.body.livraison.date + " " + req.body.livraison.heure
     const uuid = uuidv4()
     const token = jwt.sign({ foo: 'bar' }, process.env.PRIVATEKEY);
-    db.query('INSERT INTO commande (id, nom, mail, livraison, montant, token, created_at, updated_at) VALUES (?, ?, ?, ?, 0, ?, ?, ?)', [uuid, req.body.nom, req.body.mail, livraison, token, new Date(), new Date()], function (err, result) {
+    let total = 0
+    let items = req.body.items
+    items.forEach(item => {
+      total += item.tarif * item.quantite
+    })
+
+    db.query('INSERT INTO commande (id, nom, mail, livraison, montant, token, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [uuid, req.body.nom, req.body.mail, livraison, total, token, new Date(), new Date()], function (err, result) {
       if (err) {
-        console.log(err);
         res.status(500).json({
           type: "error",
           error: 500,
           message: "erreur lors de la creation de la commande"
         })
-      } else
+      } else {
+        items.forEach(item => {
+          db.query('INSERT INTO item (libelle, uri, quantite, tarif, command_id) VALUES (?, ?, ?, ?, ?)', [item.libelle, item.uri, item.quantite, item.tarif, uuid], function (err, results) {
+            if (err) {
+              res.status(500).json({
+                type: "error",
+                error: 500,
+                message: "erreur lors de la creation des items de la commande"
+              })
+            }
+          })
+        })
+
         res.status(201).json({
           "commande": {
             "id": uuid,
             "nom": req.body.nom,
             "mail": req.body.mail,
             "livraison": livraison,
-            "montant": 0,
+            "montant": total,
             "token": token,
           }
         })
+      }
     })
   })
   .put(methodNotAllowed)
@@ -123,35 +141,6 @@ router.route('/:id')
         error: 403,
         message: "vous n'êtes pas authorisé à accéder à cette commande"
       })
-  })
-
-router.route('/:id/items')
-  .copy(methodNotAllowed)
-  .delete(methodNotAllowed)
-  .patch(methodNotAllowed)
-  .post(methodNotAllowed)
-  .put(methodNotAllowed)
-  // GET ALL ITEMS OF ONE COMMANDE
-  .get(function (req, res, next) {
-    db.query('SELECT * FROM item WHERE command_id=?', [req.params.id], (err, results) => {
-      if (err)
-        res.status(500).json({
-          type: "error",
-          error: 500,
-          message: "une erreur est survenue :" + err.message
-        })
-      else {
-        if (results.length === 0) {
-          res.status(404).json({
-            type: "error",
-            error: 404,
-            message: "ressource non disponible : /commandes/" + req.params.id + "/items"
-          })
-        } else {
-          res.json(results)
-        }
-      }
-    })
   })
 
 function methodNotAllowed(req, res, next) {
