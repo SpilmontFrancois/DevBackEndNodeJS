@@ -19,7 +19,7 @@ router.route('*')
   .post(notAllowed)
   .put(notAllowed)
   .get(function (req, res, next) {
-    res.status(404).json({
+    res.status(400).json({
       type: "error",
       error: 400,
       message: "requete mal formee : " + req.url
