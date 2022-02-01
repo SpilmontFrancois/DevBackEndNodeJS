@@ -14,7 +14,7 @@ URIs:
 - Département : /annonces/departement
 - Région : /annonces/departement/region
 
-Reqûetes :
+Requêtes :
 ● Lister les annonces : GET /annonces
 ● Lister les annonces du 54 : GET /annonces/departement/54
 ● Lister les annonces de la catégorie 'voitures' : GET /annonces/categories/voitures
