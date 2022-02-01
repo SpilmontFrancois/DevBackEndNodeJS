@@ -1,45 +1,90 @@
 var express = require('express')
 var router = express.Router()
 
-router.get('/', function (req, res, next) {
-  res.json({
-    "type": "collection",
-    "count": 3,
-    "commandes": [
-      {
-        "id": "AuTR4-65ZTY",
-        "mail_client": "jan.neymar@yaboo.fr",
-        "date_commande": "2022-01-05 12:00:23",
-        "montant": 25.95
-      },
-      {
-        "id": "657GT-I8G443",
-        "mail_client": "jan.neplin@gmal.fr",
-        "date_commande": "2022-01-06 16:05:47",
-        "montant": 42.95
-      },
-      {
-        "id": "K9J67-4D6F5",
-        "mail_client": "claude.francois@grorange.fr",
-        "date_commande": "2022-01-07 17:36:45",
-        "montant": 14.95
-      },
-    ]
-  })
-})
+const db = require('../db')
 
-router.get('/:id', function (req, res, next) {
-  res.json({
-    "type": "resource",
-    "commande": {
-      "id": "K9J67-4D6F5",
-      "mail_client": "claude.francois@grorange.fr",
-      "nom_client": "claude francois",
-      "date_commande": "2022-01-07 17:36:45",
-      "date_livraison": "2022-01-08 12:30",
-      "montant": 14.95
-    }
+router.route('/')
+  .copy(methodNotAllowed)
+  .delete(methodNotAllowed)
+  .patch(methodNotAllowed)
+  .post(methodNotAllowed)
+  .put(methodNotAllowed)
+  // GET ALL COMMANDES
+  .get(function (req, res, next) {
+    db.query('SELECT * FROM commande', (err, results) => {
+      if (err)
+        res.status(500).json({
+          type: "error",
+          error: 500,
+          message: "une erreur est survenue :" + err.message
+        })
+      else
+        if (results.length === 0) {
+          res.status(404).json({
+            type: "error",
+            error: 404,
+            message: "ressource non disponible : /commandes/"
+          })
+        } else {
+          res.json(results)
+        }
+    })
   })
-})
 
-module.exports = router
+router.route('/:id')
+  .copy(methodNotAllowed)
+  .delete(methodNotAllowed)
+  .patch(methodNotAllowed)
+  .post(methodNotAllowed)
+  // EDIT ONE COMMANDE
+  .put(function (req, res, next) {
+    req.body.updated_at = new Date()
+    db.query('UPDATE commande SET ? WHERE id = ?', [req.body, req.params.id], (err, results) => {
+      if (err)
+        res.status(500).json({
+          type: "error",
+          error: 500,
+          message: "une erreur est survenue : " + err.message
+        })
+      else if (results.affectedRows === 0)
+        res.status(404).json({
+          type: "error",
+          error: 404,
+          message: "la commande " + req.params.id + " n'a pas ete trouvee : "
+        })
+      else
+        res.status(204).json(results)
+    })
+  })
+  // GET ONE COMMANDE
+  .get(function (req, res, next) {
+    db.query('SELECT * FROM commande WHERE id=?', [req.params.id], (err, results) => {
+      if (err)
+        res.status(500).json({
+          type: "error",
+          error: 500,
+          message: "une erreur est survenue :" + err.message
+        })
+      else {
+        if (results.length === 0) {
+          res.status(404).json({
+            type: "error",
+            error: 404,
+            message: "ressource non disponible : /commandes/" + req.params.id
+          })
+        } else {
+          res.json(results)
+        }
+      }
+    })
+  })
+
+function methodNotAllowed(req, res, next) {
+  res.status(405).json({
+    type: "error",
+    error: 405,
+    message: "methode non authorisee : " + req.method + " sur la route : /commandes" + req.url
+  })
+}
+
+module.exports = router;

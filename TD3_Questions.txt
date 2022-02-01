@@ -1,0 +1,63 @@
+Ex2:
+
+Ressources accessibles:
+- Catégorie
+- Annonce
+- Photo
+- Département
+- Région
+
+URIs:
+- Catégorie : /annonces/categories
+- Annonce : /annonces
+- Photo : /annonces/photos
+- Département : /annonces/departement
+- Région : /annonces/departement/region
+
+Reqûetes :
+● Lister les annonces : GET /annonces
+● Lister les annonces du 54 : GET /annonces/departement/54
+● Lister les annonces de la catégorie 'voitures' : GET /annonces/categories/voitures
+● Créer une catégorie : POST /annonces/categories
+● Modifier une annonce existante : PUT /annonces/{id}
+● Créer une annonce, l'associer à une catégorie et un département : POST /annonces /// POST /annonces/{id}/categories /// POST /annonces/{id}/departement
+● Modifier la catégorie d'une annonce : PUT /annonces/{id}/categories
+● Ajouter une image à une annonce : POST /annonces/{id}/photos
+● Supprimer une annonce et toutes les images associées : DELETE /annonces/{id}
+
+Ex3:
+
+URIs :
+- Commandes : /Commandes
+   - Lister les commandes : GET /Commandes
+   - Créer une commande : POST /Commandes
+- Commande : /commandes/{id} (GET, PUT, DELETE)
+   - Afficher une commande : GET /commandes/{id}
+   - Modifier une commande : PUT /commandes/{id}
+   - Supprimer une commande : DELETE /commandes/{id}
+
+Créer une commande : POST /commandes avec en corps le JSON suivant :
+{
+    "livraison": "2017-12-12",
+    "nom": "nomClient",
+    "mail": "mailClient",
+    "montant": "120",
+    "remise": "0",
+    "client_id": "1",
+    "status": "1",
+}
+
+Modifier la date de livraison : PUT /commandes/{id} avec en corps le JSON suivant :
+{
+    "livraison": "2017-12-12",
+}
+
+Payer la commande : PUT /commandes/{id} avec en corps le JSON suivant :
+{
+    "status": "2",
+    "mode_paiement": "CB",
+    "date_paiement": "2022-02-01",
+    "ref_paiement": "123456789",
+}
+
+Interroger pour connaitre l'état de la commande : GET /commandes/{id}
