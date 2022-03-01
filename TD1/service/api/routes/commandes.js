@@ -7,11 +7,38 @@ const uuidv4 = require('uuid').v4
 
 const jwt = require('jsonwebtoken');
 
+const Joi = require('joi');
+
 router.route('/')
   .copy(methodNotAllowed)
   .delete(methodNotAllowed)
   .patch(methodNotAllowed)
   .post(function (req, res, next) {
+    const schema = Joi.object().keys({
+      livraison: Joi.object().keys({
+        date: Joi.date().greater('now').required(),
+        heure: Joi.string().required(),
+      }),
+      nom: Joi.string().required(),
+      mail: Joi.string().email().required(),
+      items: Joi.array().items(Joi.object().keys({
+        libelle: Joi.string().required(),
+        uri: Joi.string().required(),
+        quantite: Joi.number().required(),
+        tarif: Joi.number().required(),
+      }))
+    })
+
+    try {
+      Joi.assert(req.body, schema)
+    } catch (error) {
+      return res.status(422).json({
+        type: "error",
+        error: 422,
+        message: "wrong inputs"
+      })
+    }
+
     const livraison = req.body.livraison.date + " " + req.body.livraison.heure
     const uuid = uuidv4()
     const token = jwt.sign({ foo: 'bar' }, process.env.PRIVATEKEY);
