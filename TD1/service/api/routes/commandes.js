@@ -131,6 +131,8 @@ router.route('/:id')
   })
   // GET ONE COMMANDE
   .get(function (req, res, next) {
+    // Bon on a pas les items dans la requete ça marche pas
+    let toReturn = {}
     if (req.query.token || req.headers.x_lbs_token) {
       db.query('SELECT * FROM commande WHERE id = ? AND token = ?', [req.params.id, req.query.token || req.headers.x_lbs_token], (err, results) => {
         if (err) {
@@ -147,18 +149,42 @@ router.route('/:id')
               message: "ressource non disponible : /commandes/" + req.params.id
             })
           } else {
-            if (req.query.embed === 'items')
-              results.forEach((elem) => {
-                elem.links = {
-                  self: {
-                    href: "/commandes/" + elem.id
-                  },
-                  items: {
-                    href: "/commandes/" + elem.id + "/items"
+            toReturn = results[0]
+            let items = []
+            if (req.query.embed === 'items') {
+              db.query('SELECT * FROM item WHERE command_id=?', [req.params.id], (error, resu) => {
+                if (error)
+                  res.status(500).json({
+                    type: "error",
+                    error: 500,
+                    message: "une erreur est survenue :" + error.message
+                  })
+                else {
+                  if (resu.length === 0) {
+                    res.status(404).json({
+                      type: "error",
+                      error: 404,
+                      message: "ressource non disponible : /commandes/" + req.params.id + "/items"
+                    })
+                  }
+                  else {
+                    items = resu
                   }
                 }
               })
-            res.json(results)
+              toReturn.items = items
+            }
+
+            toReturn.links = {
+              self: {
+                href: "/commandes/" + toReturn.id
+              },
+              items: {
+                href: "/commandes/" + toReturn.id + "/items"
+              }
+            }
+
+            res.json(toReturn)
           }
         }
       })
@@ -168,6 +194,35 @@ router.route('/:id')
         error: 403,
         message: "vous n'êtes pas authorisé à accéder à cette commande"
       })
+  })
+
+router.route('/:id/items')
+  .copy(methodNotAllowed)
+  .delete(methodNotAllowed)
+  .patch(methodNotAllowed)
+  .post(methodNotAllowed)
+  .put(methodNotAllowed)
+  // GET ALL ITEMS OF ONE COMMANDE
+  .get(function (req, res, next) {
+    db.query('SELECT * FROM item WHERE command_id=?', [req.params.id], (err, results) => {
+      if (err)
+        res.status(500).json({
+          type: "error",
+          error: 500,
+          message: "une erreur est survenue :" + err.message
+        })
+      else {
+        if (results.length === 0) {
+          res.status(404).json({
+            type: "error",
+            error: 404,
+            message: "ressource non disponible : /commandes/" + req.params.id + "/items"
+          })
+        } else {
+          res.json(results)
+        }
+      }
+    })
   })
 
 function methodNotAllowed(req, res, next) {
