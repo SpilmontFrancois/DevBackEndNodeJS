@@ -9,10 +9,12 @@ const jwt = require('jsonwebtoken');
 
 const Joi = require('joi');
 
+const response = require('../utils/response')
+
 router.route('/')
-  .copy(methodNotAllowed)
-  .delete(methodNotAllowed)
-  .patch(methodNotAllowed)
+  .copy(response.methodNotAllowed)
+  .delete(response.methodNotAllowed)
+  .patch(response.methodNotAllowed)
   .post(function (req, res, next) {
     const schema = Joi.object().keys({
       livraison: Joi.object().keys({
@@ -32,11 +34,7 @@ router.route('/')
     try {
       Joi.assert(req.body, schema)
     } catch (error) {
-      return res.status(422).json({
-        type: "error",
-        error: 422,
-        message: "wrong inputs"
-      })
+      return response.error(res, 422, "wrong inputs")
     }
 
     const livraison = req.body.livraison.date + " " + req.body.livraison.heure
@@ -69,48 +67,36 @@ router.route('/')
               commande_id: uuid
             }).into('item')
           })
+        }).then(async function () {
+          trx.commit
           const commande = await trx.select('*').from('commande').where('id', uuid)
-          res.status(201).json(commande)
-        }).then(trx.commit)
+          return response.success(res, 201, commande)
+        })
           .catch(trx.rollback)
       })
     } catch (error) {
-      return res.status(500).json({
-        type: "error",
-        error: 500,
-        message: "erreur lors de la creation de la commande"
-      })
+      return response.error(res, 500, "erreur lors de la creation de la commande")
     }
   })
-  .put(methodNotAllowed)
+  .put(response.methodNotAllowed)
   // GET ALL COMMANDES
   .get(async function (req, res, next) {
     try {
       const commandes = await db.select().from('commande')
-      if (commandes.length > 0) {
-        res.json(commandes)
-      }
-      else {
-        res.status(404).json({
-          "type": "error",
-          "error": 404,
-          "message": "ressource non disponible : /commandes/"
-        })
-      }
+      if (commandes.length > 0)
+        return response.success(res, 200, commandes)
+      else
+        return response.error(res, 404, "ressource non disponible : /commandes/")
     } catch (error) {
-      res.status(500).json({
-        type: "error",
-        error: 500,
-        message: "erreur lors de la recuperation des commandes"
-      })
+      return response.error(res, 500, "erreur lors de la recuperation des commandes")
     }
   })
 
 router.route('/:id')
-  .copy(methodNotAllowed)
-  .delete(methodNotAllowed)
-  .patch(methodNotAllowed)
-  .post(methodNotAllowed)
+  .copy(response.methodNotAllowed)
+  .delete(response.methodNotAllowed)
+  .patch(response.methodNotAllowed)
+  .post(response.methodNotAllowed)
   // EDIT ONE COMMANDE
   .put(async function (req, res, next) {
     req.body.updated_at = new Date()
@@ -118,20 +104,12 @@ router.route('/:id')
       const affectedRows = await db.select().from('commande').where('id', req.params.id).update(req.body)
       const commande = (await db.select().from('commande').where('id', req.params.id))[0]
       if (affectedRows)
-        res.json(commande)
+        return response.success(res, 200, commande)
       else
-        res.status(404).json({
-          type: "error",
-          error: 404,
-          message: "la commande " + req.params.id + " n'a pas ete trouvee : "
-        })
+        return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
     }
     catch (error) {
-      res.status(500).json({
-        type: "error",
-        error: 500,
-        message: "une erreur est survenue : " + error.message
-      })
+      return response.error(res, 500, "une erreur est survenue : " + error.message)
     }
   })
   // GET ONE COMMANDE
@@ -147,11 +125,7 @@ router.route('/:id')
               if (items.length > 0)
                 commande.items = items
             } catch (error) {
-              res.status(500).json({
-                type: "error",
-                error: 500,
-                message: "une erreur est survenue : " + error.message
-              })
+              return response.error(res, 500, "une erreur est survenue : " + error.message)
             }
           }
 
@@ -164,63 +138,34 @@ router.route('/:id')
             }
           }
 
-          res.json(commande)
+          return response.success(res, 200, commande)
         }
         else
-          res.status(404).json({
-            type: "error",
-            error: 404,
-            message: "ressource non disponible : /commandes/" + req.params.id
-          })
-
+          return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
       } catch (error) {
-        res.status(500).json({
-          type: "error",
-          error: 500,
-          message: "une erreur est survenue : " + error.message
-        })
+        return response.error(res, 500, "une erreur est survenue : " + error.message)
       }
     } else
-      res.status(403).json({
-        type: "error",
-        error: 403,
-        message: "vous n'êtes pas authorisé à accéder à cette commande"
-      })
+      return response.error(res, 401, "vous n'avez pas les droits nécessaires afin d'acceder a cette ressource")
   })
 
 router.route('/:id/items')
-  .copy(methodNotAllowed)
-  .delete(methodNotAllowed)
-  .patch(methodNotAllowed)
-  .post(methodNotAllowed)
-  .put(methodNotAllowed)
+  .copy(response.methodNotAllowed)
+  .delete(response.methodNotAllowed)
+  .patch(response.methodNotAllowed)
+  .post(response.methodNotAllowed)
+  .put(response.methodNotAllowed)
   // GET ALL ITEMS OF ONE COMMANDE
   .get(async function (req, res, next) {
     try {
       const items = await db.select().from('item').where('command_id', req.params.id)
       if (items.length > 0)
-        res.json(items)
+        return response.success(res, 200, items)
       else
-        res.status(404).json({
-          type: "error",
-          error: 404,
-          message: "ressource non disponible : /commandes/" + req.params.id + "/items"
-        })
+        return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id + "/items")
     } catch (error) {
-      res.status(500).json({
-        type: "error",
-        error: 500,
-        message: "une erreur est survenue : " + error.message
-      })
+      return response.error(res, 500, "une erreur est survenue : " + error.message)
     }
   })
-
-function methodNotAllowed(req, res, next) {
-  res.status(405).json({
-    type: "error",
-    error: 405,
-    message: "methode non authorisee : " + req.method + " sur la route : /commandes" + req.url
-  })
-}
 
 module.exports = router;
