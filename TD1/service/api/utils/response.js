@@ -6,11 +6,21 @@ function error(res, code, message) {
     })
 }
 
-function success(res, code, data) {
+function success(res, code, type, dataName, data, links) {
     res.status(code).json({
-        "type": "success",
-        "data": data
+        type,
+        "count": data.length,
+        [dataName]: data,
+        links
     })
+}
+
+function created(res, dataName, data) {
+    res.status(201).json({ [dataName]: data })
+}
+
+function modified(res) {
+    res.status(204).json({})
 }
 
 function methodNotAllowed(req, res) {
@@ -24,5 +34,7 @@ function methodNotAllowed(req, res) {
 module.exports = {
     error,
     success,
+    created,
+    modified,
     methodNotAllowed
 }

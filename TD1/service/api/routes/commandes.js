@@ -15,7 +15,7 @@ router.route('/')
   .copy(response.methodNotAllowed)
   .delete(response.methodNotAllowed)
   .patch(response.methodNotAllowed)
-  .post(function (req, res, next) {
+  .post(async function (req, res, next) {
     const schema = Joi.object().keys({
       livraison: Joi.object().keys({
         date: Joi.date().greater('now').required(),
@@ -46,7 +46,7 @@ router.route('/')
       total += item.tarif * item.quantite
     })
 
-    try {
+    new Promise((resolve, reject) => {
       db.transaction(trx => {
         trx.insert({
           id: uuid,
@@ -57,26 +57,41 @@ router.route('/')
           token: token,
           created_at: new Date(),
           updated_at: new Date()
-        }).into('commande').then(async function (data) {
-          items.forEach(item => {
-            trx.insert({
-              libelle: item.libelle,
-              uri: item.uri,
-              quantite: item.quantite,
-              tarif: item.tarif,
-              commande_id: uuid
-            }).into('item')
-          })
-        }).then(async function () {
-          trx.commit
-          const commande = await trx.select('*').from('commande').where('id', uuid)
-          return response.success(res, 201, commande)
         })
-          .catch(trx.rollback)
+          .into('commande')
+          .then(trx.commit)
+          .catch(() => {
+            trx.rollback
+            return response.error(res, 500, "erreur lors de la creation de la commande")
+          })
       })
-    } catch (error) {
-      return response.error(res, 500, "erreur lors de la creation de la commande")
-    }
+        // Une fois la commande créée, on crée les items
+        .then(() => {
+          items.forEach(item => {
+            db.transaction(trx => {
+              trx.insert({
+                libelle: item.libelle,
+                uri: item.uri,
+                quantite: item.quantite,
+                tarif: item.tarif,
+                command_id: uuid
+              })
+                .into('item')
+                .then(trx.commit)
+                .catch(() => {
+                  trx.rollback
+                  return response.error(res, 500, "erreur lors de la creation des items de la commande")
+                })
+            })
+          })
+          // Une fois les items créés, on resout la promesse pour retourner la commande
+          resolve()
+        })
+    })
+      .then(async () => {
+        const commande = await db.select().from('commande').where('id', uuid)
+        return response.created(res, "commande", commande)
+      })
   })
   .put(response.methodNotAllowed)
   // GET ALL COMMANDES
@@ -84,7 +99,7 @@ router.route('/')
     try {
       const commandes = await db.select().from('commande')
       if (commandes.length > 0)
-        return response.success(res, 200, commandes)
+        return response.success(res, 200, "collection", "commandes", commandes)
       else
         return response.error(res, 404, "ressource non disponible : /commandes/")
     } catch (error) {
@@ -104,7 +119,7 @@ router.route('/:id')
       const affectedRows = await db.select().from('commande').where('id', req.params.id).update(req.body)
       const commande = (await db.select().from('commande').where('id', req.params.id))[0]
       if (affectedRows)
-        return response.success(res, 200, commande)
+        return response.modified(res)
       else
         return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
     }
@@ -129,7 +144,7 @@ router.route('/:id')
             }
           }
 
-          commande.links = {
+          const links = {
             self: {
               href: "/commandes/" + commande.id
             },
@@ -138,7 +153,7 @@ router.route('/:id')
             }
           }
 
-          return response.success(res, 200, commande)
+          return response.success(res, 200, "resource", "commande", commande, links)
         }
         else
           return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
@@ -160,7 +175,7 @@ router.route('/:id/items')
     try {
       const items = await db.select().from('item').where('command_id', req.params.id)
       if (items.length > 0)
-        return response.success(res, 200, items)
+        return response.success(res, 200, "collection", "items", items)
       else
         return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id + "/items")
     } catch (error) {
