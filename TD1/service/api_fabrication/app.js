@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 var indexRouter = require('./routes/index');
-// var commandesRouter = require('./routes/commandes');
+var commandesRouter = require('./routes/commandes');
 
 var app = express();
 
@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/commandes', commandesRouter);
+app.use('/commandes', commandesRouter);
 app.use('/', indexRouter);
 
 module.exports = app;

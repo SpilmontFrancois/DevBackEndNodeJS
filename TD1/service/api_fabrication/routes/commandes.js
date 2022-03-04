@@ -17,7 +17,30 @@ router.route('/')
   .patch(response.methodNotAllowed)
   .post(response.methodNotAllowed)
   .put(response.methodNotAllowed)
-  .get(response.methodNotAllowed)
+  .get(async function (req, res, next) {
+    try {
+      const commandes = await db.select().from('commande')
+      const toReturn = []
+      commandes.forEach((commande) => {
+        const links = {
+          self: {
+            href: "/commandes/" + commande.id
+          }
+        }
+
+        toReturn.push({
+          commande,
+          links
+        })
+      })
+      if (commandes.length > 0)
+        return response.success(res, 200, "collection", "commandes", toReturn)
+      else
+        return response.error(res, 404, "ressource non disponible : /commandes/")
+    } catch (error) {
+      return response.error(res, 500, "erreur lors de la recuperation des commandes")
+    }
+  })
 
 router.route('/:id')
   .copy(response.methodNotAllowed)
