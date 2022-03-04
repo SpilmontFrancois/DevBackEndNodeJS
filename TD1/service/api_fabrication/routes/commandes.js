@@ -19,7 +19,12 @@ router.route('/')
   .put(response.methodNotAllowed)
   .get(async function (req, res, next) {
     try {
-      const commandes = await db.select().from('commande')
+      let commandes
+      if (req.query.s)
+        commandes = await db.select().from('commande').where('status', req.query.s)
+      else
+        commandes = await db.select().from('commande')
+
       const toReturn = []
       commandes.forEach((commande) => {
         const links = {
