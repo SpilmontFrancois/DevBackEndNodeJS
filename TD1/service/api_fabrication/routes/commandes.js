@@ -20,29 +20,57 @@ router.route('/')
   .get(async function (req, res, next) {
     try {
       let commandes
-      if (req.query.s)
-        commandes = await db.select().from('commande').where('status', req.query.s)
-      else
-        commandes = await db.select().from('commande')
+      const page = parseInt(req.query.page) || 1
+      const size = parseInt(req.query.size) || 10
 
-      const toReturn = []
-      commandes.forEach((commande) => {
+      if (req.query.s) {
+        commandes = await db.select().from('commande').where('status', req.query.s).paginate({ perPage: size, currentPage: page, isLengthAware: true })
+        if (page > commandes.pagination.lastPage)
+          commandes = await db.select().from('commande').where('status', req.query.s).paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
+      }
+      else {
+        commandes = await db.select().from('commande').paginate({ perPage: size, currentPage: page, isLengthAware: true })
+        if (page > commandes.pagination.lastPage)
+          commandes = await db.select().from('commande').paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
+      }
+
+      if (commandes.data.length > 0) {
+        const count = commandes.pagination.total
+        const toReturn = []
+        commandes.data.forEach((commande) => {
+          commande.links = {
+            self: {
+              href: "/commandes/" + commande.id
+            }
+          }
+
+          toReturn.push({
+            commande
+          })
+        })
+        
         const links = {
-          self: {
-            href: "/commandes/" + commande.id
+          next: {
+            href: "/commandes?page=" + (page + 1) + "&size=" + size
+          },
+          prev: {
+            href: "/commandes?page=" + (page - 1) + "&size=" + size
+          },
+          last: {
+            href: "/commandes?page=" + commandes.pagination.lastPage + "&size=" + size
+          },
+          first: {
+            href: "/commandes?page=1&size=" + size
           }
         }
 
-        toReturn.push({
-          commande,
-          links
-        })
-      })
-      if (commandes.length > 0)
-        return response.success(res, 200, "collection", "commandes", toReturn)
-      else
+        return response.paginate(res, "collection", count, "commandes", toReturn, links)
+      }
+      else {
         return response.error(res, 404, "ressource non disponible : /commandes/")
+      }
     } catch (error) {
+      console.log(error);
       return response.error(res, 500, "erreur lors de la recuperation des commandes")
     }
   })

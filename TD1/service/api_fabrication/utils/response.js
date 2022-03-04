@@ -1,15 +1,25 @@
 function error(res, code, message) {
     res.status(code).json({
-        "type": "error",
-        "error": code,
-        "message": message
+        type: "error",
+        error: code,
+        message
     })
 }
 
 function success(res, code, type, dataName, data, links) {
     res.status(code).json({
         type,
-        "count": data.length,
+        count: data.length,
+        [dataName]: data,
+        links
+    })
+}
+
+function paginate(res, type, count, dataName, data, links) {
+    res.status(206).json({
+        type,
+        count,
+        size: data.length,
         [dataName]: data,
         links
     })
@@ -36,5 +46,6 @@ module.exports = {
     success,
     created,
     modified,
+    paginate,
     methodNotAllowed
 }
