@@ -114,18 +114,21 @@ router.route('/:id')
   .post(response.methodNotAllowed)
   // EDIT ONE COMMANDE
   .put(async function (req, res, next) {
-    req.body.updated_at = new Date()
-    try {
-      const affectedRows = await db.select().from('commande').where('id', req.params.id).update(req.body)
-      const commande = (await db.select().from('commande').where('id', req.params.id))[0]
-      if (affectedRows)
-        return response.modified(res)
-      else
-        return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
-    }
-    catch (error) {
-      return response.error(res, 500, "une erreur est survenue : " + error.message)
-    }
+    if (req.query.token || req.headers.x_lbs_token) {
+      const token = req.query.token || req.headers.x_lbs_token
+      req.body.updated_at = new Date()
+      try {
+        const affectedRows = await db.select().from('commande').where('id', req.params.id).andWhere('token', token).update(req.body)
+        if (affectedRows)
+          return response.modified(res)
+        else
+          return response.error(res, 404, "ressource non disponible : /commandes/" + req.params.id)
+      }
+      catch (error) {
+        return response.error(res, 500, "une erreur est survenue : " + error.message)
+      }
+    } else
+      return response.error(res, 401, "vous n'avez pas les droits nécessaires afin d'acceder a cette ressource")
   })
   // GET ONE COMMANDE
   .get(async function (req, res, next) {
