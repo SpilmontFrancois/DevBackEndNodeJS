@@ -89,7 +89,8 @@ router.route('/')
         })
     })
       .then(async () => {
-        const commande = await db.select().from('commande').where('id', uuid)
+        const commande = await db.select('nom', 'mail', 'livraison as date_livraison', 'commande.id', 'token', 'montant').from('commande').where('commande.id', uuid)
+          .join('item', 'item.command_id', 'commande.id').options({ nestTables: true }).select('uri', 'quantite as q', 'libelle', 'tarif').where('command_id', uuid)
         return response.created(res, "commande", commande)
       })
   })
@@ -97,7 +98,7 @@ router.route('/')
   // GET ALL COMMANDES
   .get(async function (req, res, next) {
     try {
-      const commandes = await db.select().from('commande')
+      const commandes = await db.select('id', 'created_at as date_commande', 'mail as mail_client', 'montant as montant').from('commande')
       if (commandes.length > 0)
         return response.success(res, 200, "collection", "commandes", commandes)
       else
@@ -135,11 +136,11 @@ router.route('/:id')
     if (req.query.token || req.headers.x_lbs_token) {
       const token = req.query.token || req.headers.x_lbs_token
       try {
-        const commande = (await db.select().from('commande').where('id', req.params.id).andWhere('token', token))[0]
+        const commande = (await db.select('id', 'mail', 'nom', 'created_at as date_commande', 'livraison as date_livraison', 'montant').from('commande').where('id', req.params.id).andWhere('token', token))[0]
         if (commande) {
           if (req.query.embed === "items") {
             try {
-              const items = await db.select().from('item').where('command_id', req.params.id)
+              const items = await db.select('id', 'libelle', 'tarif', 'quantite').from('item').where('command_id', req.params.id)
               if (items.length > 0)
                 commande.items = items
             } catch (error) {
@@ -176,7 +177,7 @@ router.route('/:id/items')
   // GET ALL ITEMS OF ONE COMMANDE
   .get(async function (req, res, next) {
     try {
-      const items = await db.select().from('item').where('command_id', req.params.id)
+      const items = await db.select('id', 'libelle', 'tarif', 'quantite').from('item').where('command_id', req.params.id)
       if (items.length > 0)
         return response.success(res, 200, "collection", "items", items)
       else

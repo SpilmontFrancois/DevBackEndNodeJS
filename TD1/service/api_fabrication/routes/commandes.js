@@ -24,14 +24,14 @@ router.route('/')
       const size = parseInt(req.query.size) || 10
 
       if (req.query.s) {
-        commandes = await db.select().from('commande').where('status', req.query.s).orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: page, isLengthAware: true })
+        commandes = await db.select('id', 'nom', 'created_at', 'livraison', 'status').from('commande').where('status', req.query.s).orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: page, isLengthAware: true })
         if (page > commandes.pagination.lastPage)
-          commandes = await db.select().from('commande').where('status', req.query.s).orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
+          commandes = await db.select('id', 'nom', 'created_at', 'livraison', 'status').from('commande').where('status', req.query.s).orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
       }
       else {
-        commandes = await db.select().from('commande').orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: page, isLengthAware: true })
+        commandes = await db.select('id', 'nom', 'created_at', 'livraison', 'status').from('commande').orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: page, isLengthAware: true })
         if (page > commandes.pagination.lastPage)
-          commandes = await db.select().from('commande').orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
+          commandes = await db.select('id', 'nom', 'created_at', 'livraison', 'status').from('commande').orderBy('livraison', 'desc').orderBy('created_at', 'desc').paginate({ perPage: size, currentPage: commandes.pagination.lastPage, isLengthAware: true })
       }
 
       if (commandes.data.length > 0) {
