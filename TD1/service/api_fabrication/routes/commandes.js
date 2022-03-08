@@ -37,15 +37,15 @@ router.route('/')
       if (commandes.data.length > 0) {
         const count = commandes.pagination.total
         const toReturn = []
-        commandes.data.forEach((commande) => {
-          commande.links = {
+        commandes.data.forEach((command) => {
+          command.links = {
             self: {
-              href: "/commandes/" + commande.id
+              href: "/commandes/" + command.id
             }
           }
 
           toReturn.push({
-            commande
+            command
           })
         })
 

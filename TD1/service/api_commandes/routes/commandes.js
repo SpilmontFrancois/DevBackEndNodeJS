@@ -90,7 +90,7 @@ router.route('/')
     })
       .then(async () => {
         const commande = await db.select('nom', 'mail', 'livraison as date_livraison', 'commande.id', 'token', 'montant').from('commande').where('commande.id', uuid)
-          .join('item', 'item.command_id', 'commande.id').options({ nestTables: true }).select('uri', 'quantite as q', 'libelle', 'tarif').where('command_id', uuid)
+          .join('item as items', 'items.command_id', 'commande.id').options({ nestTables: true }).select('uri', 'quantite as q', 'libelle', 'tarif').where('command_id', uuid)
         return response.created(res, "commande", commande)
       })
   })
