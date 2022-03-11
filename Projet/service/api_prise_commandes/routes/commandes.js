@@ -164,8 +164,10 @@ router.route('/:id')
       } catch (error) {
         return response.error(res, 500, "une erreur est survenue : " + error.message)
       }
-    } else
+    } else{
+      console.log(req.query);
       return response.error(res, 401, "vous n'avez pas les droits nécessaires afin d'acceder a cette ressource")
+    }
   })
 
 router.route('/:id/items')
