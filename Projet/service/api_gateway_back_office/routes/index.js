@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router()
-var suiviCommandeService = require('./suiviCommandeService')
 
-router.use((req, res, next) => {
-    console.log("Called: ", req.path)
-    next()
+router.route('*')
+.get(function (req, res, next) {
+  res.status(400).json({
+    type: "error",
+    error: 400,
+    message: "requete mal formee : " + req.url
+  })
 })
 
-router.use(suiviCommandeService)
-
 module.exports = router
+

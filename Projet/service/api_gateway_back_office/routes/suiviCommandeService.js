@@ -5,8 +5,8 @@ const apiAdapter = require('./apiAdapter')
 const BASE_URL = 'http://localhost:3001'
 const api = apiAdapter(BASE_URL)
 
-router.get('/commandes', (req, res) => {
-  api.get(req.path).then(resp => {
+router.get('/', (req, res) => {
+  api.get('/commandes' + req.path).then(resp => {
     res.json(resp.data)
   })
 })
