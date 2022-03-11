@@ -75,20 +75,4 @@ router.route('/')
     }
   })
 
-router.route('/:id')
-  .copy(response.methodNotAllowed)
-  .delete(response.methodNotAllowed)
-  .patch(response.methodNotAllowed)
-  .post(response.methodNotAllowed)
-  .put(response.methodNotAllowed)
-  .get(response.methodNotAllowed)
-
-router.route('/:id/items')
-  .copy(response.methodNotAllowed)
-  .delete(response.methodNotAllowed)
-  .patch(response.methodNotAllowed)
-  .post(response.methodNotAllowed)
-  .put(response.methodNotAllowed)
-  .get(response.methodNotAllowed)
-
 module.exports = router;
