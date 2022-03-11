@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var suiviCommandeService = require('./routes/suiviCommandeService')
+var priseCommandeService = require('./routes/priseCommandeService')
 
 var app = express();
 
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/commandes', suiviCommandeService)
+app.use('/commandes', priseCommandeService)
 app.use('/', indexRouter);
 
 module.exports = app;
