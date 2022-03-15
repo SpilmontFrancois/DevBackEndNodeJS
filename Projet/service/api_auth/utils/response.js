@@ -27,7 +27,7 @@ function methodNotAllowed(req, res) {
     res.status(405).json({
         type: "error",
         error: 405,
-        message: "methode non authorisee : " + req.method + " sur la route : /commandes" + req.url
+        message: "methode non authorisee : " + req.method + " sur la route : /auth" + req.url
     })
 }
 
