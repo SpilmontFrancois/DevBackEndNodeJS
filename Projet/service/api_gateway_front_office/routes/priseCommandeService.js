@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router()
 const apiAdapter = require('./apiAdapter')
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = 'http://api_prise_commandes:3000'
 const api = apiAdapter(BASE_URL)
 
 router.route('/')

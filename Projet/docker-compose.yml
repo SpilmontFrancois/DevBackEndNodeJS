@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   api_prise_commandes:
     container_name: api_prise_commandes
@@ -10,11 +12,11 @@ services:
       - 3333:3000
     command: npm run watch
     depends_on:
-      - iut_db
+      - db_sandwich
     links:
-      - iut_db
+      - db_sandwich
     networks:
-      - iut
+      - sandwich
 
   api_suivi_commandes:
     container_name: api_suivi_commandes
@@ -27,11 +29,11 @@ services:
       - 3334:3001
     command: npm run watch
     depends_on:
-      - iut_db
+      - db_sandwich
     links:
-      - iut_db
+      - db_sandwich
     networks:
-      - iut
+      - sandwich
 
   api_gateway_back_office:
     container_name: api_gateway_back_office
@@ -43,11 +45,11 @@ services:
       - 3335:3002
     command: npm run watch
     depends_on:
-      - iut_db
+      - db_sandwich
     links:
-      - iut_db
+      - db_sandwich
     networks:
-      - iut
+      - sandwich
 
   api_gateway_front_office:
     container_name: api_gateway_front_office
@@ -59,14 +61,14 @@ services:
       - 3336:3004
     command: npm run watch
     depends_on:
-      - iut_db
+      - db_sandwich
     links:
-      - iut_db
+      - db_sandwich
     networks:
-      - iut
+      - sandwich
 
-  iut_db:
-    container_name: iut_db
+  db_sandwich:
+    container_name: db_sandwich
     image: mariadb:latest
     env_file: ./service/.env
     volumes:
@@ -74,7 +76,7 @@ services:
       - ./service/schema.sql:/docker-entrypoint-initdb.d/1.sql
       - ./service/data.sql:/docker-entrypoint-initdb.d/2.sql
     networks:
-      - iut
+      - sandwich
 
   iut_adminer:
     container_name: iut_adminer
@@ -82,10 +84,10 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - iut_db
+      - db_sandwich
     networks:
-      - iut
+      - sandwich
 
 networks:
-  iut:
+  sandwich:
     driver: bridge
