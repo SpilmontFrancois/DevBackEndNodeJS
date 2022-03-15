@@ -5,6 +5,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var suiviCommandeService = require('./routes/suiviCommandeService')
+var authService = require('./routes/authService')
 
 var app = express();
 
@@ -15,6 +16,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/commandes', suiviCommandeService)
+app.use('/auth', authService)
 app.use('/', indexRouter);
 
 module.exports = app;
