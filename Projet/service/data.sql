@@ -43,4 +43,30 @@ INSERT INTO `item` (`id`, `uri`, `libelle`, `tarif`, `quantite`, `command_id`) V
 (3033,	'/sandwichs/s19001',	'le bucheron',	6.00,	4,	'6d90caa2-b74a-4575-9b8a-bf237306d48b'),
 (3034,	'/sandwichs/s19004',	'le forestier',	5.75,	1,	'06d23c7f-3a7d-4499-b7f1-0bb53ae40495');
 
+INSERT INTO `sandwich` (`id`, `nom`, `description`, `type_pain`, `image`, `categories`, `prix`) VALUES
+(1, 'sandwich 1', 'description 1', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(2, 'sandwich 2', 'description 2', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(3, 'sandwich 3', 'description 3', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(4, 'sandwich 4', 'description 4', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(5, 'sandwich 5', 'description 5', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(6, 'sandwich 6', 'description 6', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(7, 'sandwich 7', 'description 7', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(8, 'sandwich 8', 'description 8', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(9, 'sandwich 9', 'description 9', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(10, 'sandwich 10', 'description 10', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(11, 'sandwich 11', 'description 11', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(12, 'sandwich 12', 'description 12', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(13, 'sandwich 13', 'description 13', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25),
+(14, 'sandwich 14', 'description 14', 'pain normal', 'https://fakeimg.pl/300/', '1,2', 5.25);
+
+INSERT INTO `category` (`id`, `nom`, `description`) VALUES
+(1, 'poulet', 'poulet'),
+(2, 'jambon', 'jambon'),
+(3, 'pain', 'pain'),
+(4, 'frites', 'frites'),
+(5, 'boisson', 'boisson'),
+(6, 'dessert', 'dessert'),
+(7, 'sandwich', 'sandwich');
+
+
 -- 2019-11-08 13:48:21

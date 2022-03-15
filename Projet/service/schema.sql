@@ -49,4 +49,24 @@ CREATE TABLE `item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `sandwich`;
+CREATE TABLE `sandwich` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nom` varchar(128) NOT NULL,
+  `description` varchar(256) NOT NULL,
+  `type_pain` varchar(256) NOT NULL,
+  `image` varchar(256) DEFAULT NULL,
+  `categories` varchar(256) DEFAULT NULL,
+  `prix` decimal(6,2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE `category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nom` varchar(128) NOT NULL,
+  `description` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- 2019-11-08 13:47:44

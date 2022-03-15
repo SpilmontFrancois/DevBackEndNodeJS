@@ -67,6 +67,22 @@ services:
     networks:
       - sandwich
 
+  api_auth:
+    container_name: api_auth
+    image: node:lts
+    working_dir: /usr/src/app
+    volumes:
+      - ./service/api_auth:/usr/src/app
+    ports:
+      - 3337:3003
+    command: npm run watch
+    depends_on:
+      - db_sandwich
+    links:
+      - db_sandwich
+    networks:
+      - sandwich
+
   db_sandwich:
     container_name: db_sandwich
     image: mariadb:latest
