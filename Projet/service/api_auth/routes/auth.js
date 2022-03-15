@@ -61,9 +61,7 @@ router.route('/signin')
       const user = await db.select('passwd').from('client').where('mail_client', req.body.mail_client)
       if (user.length > 0) {
         if (bcrypt.compareSync(req.body.passwd, user[0].passwd)) {
-          // JWT OK
-          // Créer un jwt et le renvoyer OK
-          // Créer un middleware qui vérifie le JWT à fin d'accéder à la ressource
+          // Créer un middleware qui vérifie le JWT pour d'accéder à la ressource
           const token = jwt.sign({
 
           },
@@ -78,10 +76,11 @@ router.route('/signin')
           return response.error(res, 401, "informations de connection incorrectes")
         }
       } else {
-        return response.error(res, 404, "ressource non disponible : /signin")
+        return response.error(res, 404, "utilisateur non trouvé")
       }
 
     } catch (error) {
+      console.log(error);
       return response.error(res, 404, "ressource non disponible : /signin")
     }
   })

@@ -70,6 +70,7 @@ services:
   api_auth:
     container_name: api_auth
     image: node:lts
+    env_file: ./service/api_auth/.env
     working_dir: /usr/src/app
     volumes:
       - ./service/api_auth:/usr/src/app
