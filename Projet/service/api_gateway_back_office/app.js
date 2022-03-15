@@ -7,7 +7,14 @@ var indexRouter = require('./routes/index');
 var suiviCommandeService = require('./routes/suiviCommandeService')
 var authService = require('./routes/authService')
 
+const dotenv = require('dotenv');
+dotenv.config();
+
 var app = express();
+
+const authMiddleware = require('./middlewares/authMiddleware')
+
+app.use(authMiddleware)
 
 app.use(logger('dev'));
 app.use(express.json());
