@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router()
+require('dotenv').config();
 const apiAdapter = require('./apiAdapter')
 
 const BASE_URL = process.env.AUTH_BASE_URL
